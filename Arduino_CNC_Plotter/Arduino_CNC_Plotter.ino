@@ -1,32 +1,25 @@
-/* 
- Mini CNC Plotter firmware, based in TinyCNC https://github.com/MakerBlock/TinyCNC-Sketches
- Send GCODE to this Sketch using gctrl.pde https://github.com/damellis/gctrl
- Convert SVG to GCODE with MakerBot Unicorn plugin for Inkscape available here https://github.com/martymcguire/inkscape-unicorn
- 
- More information about the Mini CNC Plotter here (german, sorry): http://www.makerblog.at/2015/02/projekt-mini-cnc-plotter-aus-alten-cddvd-laufwerken/
-  */
-
 #include <Servo.h>
 #include <Stepper.h>
-
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 #define LINE_BUFFER_LENGTH 512
 
 // Servo position for Up and Down 
-const int penZUp = 40;
-const int penZDown = 85;
+const int penZUp = 60;
+const int penZDown = 80;
 
 // Servo on PWM pin 6
-const int penServoPin = 6;
+const int penServoPin = 10;
 
 // Should be right for DVD steppers, but is not too important here
-const int stepsPerRevolution = 20; 
+const int stepsPerRevolution = 50; 
 
 // create servo object to control a servo 
 Servo penServo;  
 
 // Initialize steppers for X- and Y-axis using this Arduino pins for the L293D H-bridge
-Stepper myStepperY(stepsPerRevolution, 2,3,4,5);            
-Stepper myStepperX(stepsPerRevolution, 8,9,10,11);  
+Stepper myStepperX(stepsPerRevolution, 2,3,4,5);            
+Stepper myStepperY(stepsPerRevolution, 9,8,7,6);  
 
 /* Structures, global variables    */
 struct point { 
@@ -53,9 +46,9 @@ float StepsPerMillimeterY = 6.0;
 // Drawing robot limits, in mm
 // OK to start with. Could go up to 50 mm if calibrated well. 
 float Xmin = 0;
-float Xmax = 40;
+float Xmax = 300;
 float Ymin = 0;
-float Ymax = 40;
+float Ymax = 300;
 float Zmin = 0;
 float Zmax = 1;
 
@@ -77,33 +70,32 @@ boolean verbose = false;
 /**********************
  * void setup() - Initialisations
  ***********************/
-void setup() {
-  //  Setup
-  Serial.begin( 9600 );
-  
-  penServo.attach(penServoPin);
-  penServo.write(penZUp);
-  delay(200);
+void setup() {//Setup
+Serial.begin( 9600 );
+lcd.begin(16, 2);
+lcd.clear();
+lcd.setCursor(5,0);
+lcd.print("WELCOME");
+penServo.attach(penServoPin);
+penServo.write(penZUp);
+delay(1000);
+lcd.clear();
 
-  // Decrease if necessary
-  myStepperX.setSpeed(250);
-  myStepperY.setSpeed(250);  
+// Decrease if necessary
+myStepperX.setSpeed(250);
+myStepperY.setSpeed(250);  
 
-  //  Set & move to initial default position
-  // TBD
-
-  //  Notifications!!!
-  Serial.println("Mini CNC Plotter alive and kicking!");
-  Serial.print("X range is from "); 
-  Serial.print(Xmin); 
-  Serial.print(" to "); 
-  Serial.print(Xmax); 
-  Serial.println(" mm."); 
-  Serial.print("Y range is from "); 
-  Serial.print(Ymin); 
-  Serial.print(" to "); 
-  Serial.print(Ymax); 
-  Serial.println(" mm."); 
+Serial.println("Mini CNC Plotter alive and kicking!");
+Serial.print("X range is from "); 
+Serial.print(Xmin); 
+Serial.print(" to "); 
+Serial.print(Xmax); 
+Serial.println(" mm."); 
+Serial.print("Y range is from "); 
+Serial.print(Ymin); 
+Serial.print(" to "); 
+Serial.print(Ymax); 
+Serial.println(" mm."); 
 }
 
 /**********************
@@ -196,10 +188,10 @@ void processIncomingLine( char* line, int charNB ) {
   while( currentIndex < charNB ) {
     switch ( line[ currentIndex++ ] ) {              // Select command, if any
     case 'U':
-      penUp(); 
+   penDown(); 
       break;
     case 'D':
-      penDown(); 
+           penUp();
       break;
     case 'G':
       buffer[0] = line[ currentIndex++ ];          // /!\ Dirty - Only works with 2 digit commands
@@ -277,6 +269,8 @@ void processIncomingLine( char* line, int charNB ) {
  * int (x2;y2) : Ending coordinates
  **********************************/
 void drawLine(float x1, float y1) {
+lcd.setCursor(0,0);lcd.print("X=");lcd.print(x1);lcd.print("  ");
+lcd.setCursor(8,0);lcd.print("Y=");lcd.print(y1);lcd.print("  ");
 
   if (verbose)
   {
@@ -300,6 +294,7 @@ void drawLine(float x1, float y1) {
   if (y1 <= Ymin) { 
     y1 = Ymin; 
   }
+  
 
   if (verbose)
   {
@@ -356,6 +351,7 @@ void drawLine(float x1, float y1) {
       delay(StepDelay);
     }    
   }
+  
 
   if (verbose)
   {
@@ -387,10 +383,14 @@ void penUp() {
   penServo.write(penZUp); 
   delay(LineDelay); 
   Zpos=Zmax; 
+  
   if (verbose) { 
     Serial.println("Pen up!"); 
   } 
+  lcd.setCursor(0,1);
+  lcd.print("Z= Pen up   ");
 }
+
 //  Lowers pen
 void penDown() { 
   penServo.write(penZDown); 
@@ -399,4 +399,6 @@ void penDown() {
   if (verbose) { 
     Serial.println("Pen down."); 
   } 
+  lcd.setCursor(0,1);
+  lcd.print("Z= Pen down  ");
 }
