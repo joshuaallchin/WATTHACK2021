@@ -237,6 +237,7 @@ void help() {
  */
 void processCommand() {
   int cmd = parsenumber('G',-1);
+  Serial.print(cmd);
   switch(cmd) {
   case  0:
   case  1: { // line
