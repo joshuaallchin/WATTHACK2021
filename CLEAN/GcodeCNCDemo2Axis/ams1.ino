@@ -5,38 +5,20 @@
 // Copyright at end of file.
 // please see http://www.github.com/MarginallyClever/GcodeCNCDemo for more information.
 
-#include "config.h"
-
-#if CONTROLLER == AMS2
+#if CONTROLLER == AMS1
 
 //------------------------------------------------------------------------------
 // INCLUDES
 //------------------------------------------------------------------------------
+#include <AFMotorDrawbot.h>
 
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_PWMServoDriver.h"
-
-
-//#if CONTROLLER = AMS2
-
-// Make sure you set the right address.  If you aren't sure,
-// use http://playground.arduino.cc/Main/I2cScanner to find it.
-#define AFMS2_ADDRESS  (0x60)
-
-#ifndef AFMS2_ADDRESS
-#error AFMS2_ADDRESS must be defined!
-#endif
-#endif
 
 //------------------------------------------------------------------------------
 // GLOBALS
 //------------------------------------------------------------------------------
-
-// Create the motor shield object with the default I2C address
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(AMS2_ADDRESS); 
-Adafruit_StepperMotor *m1 = AFMS.getStepper(STEPS_PER_TURN, 1);  // to motor port #1 (M1 and M2)
-Adafruit_StepperMotor *m2 = AFMS.getStepper(STEPS_PER_TURN, 2);  // to motor port #2 (M3 and M4)
+// Initialize Adafruit stepper controller
+AF_Stepper m1((int)STEPS_PER_TURN, 1);
+AF_Stepper m2((int)STEPS_PER_TURN, 2);
 
 
 //------------------------------------------------------------------------------
@@ -44,26 +26,23 @@ Adafruit_StepperMotor *m2 = AFMS.getStepper(STEPS_PER_TURN, 2);  // to motor por
 //------------------------------------------------------------------------------
 
 void m1step(int dir) {
-  m1->onestep(dir>0?FORWARD:BACKWARD,SINGLE);
+  m1.onestep(dir);
 }
 
 void m2step(int dir) {
-  m2->onestep(dir>0?FORWARD:BACKWARD,SINGLE);
+  m2.onestep(dir);
 }
 
 void disable() {
-  m1->release();
-  m2->release();
+    m1.release();
+    m2.release();
 }
 
 
-void setup_controller() {
-  AFMS.begin();  // create with the default frequency 1.6KHz
-}
+void setup_controller() {}
 
 
-//#endif  CONTROLLER == AMS2
-
+#endif  // CONTROLLER == AMS1
 /**
 * This file is part of GcodeCNCDemo.
 *

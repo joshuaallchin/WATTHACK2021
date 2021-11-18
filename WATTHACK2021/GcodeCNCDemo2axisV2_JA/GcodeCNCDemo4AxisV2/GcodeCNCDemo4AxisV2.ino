@@ -54,8 +54,7 @@ typedef struct {
 Adafruit_MotorShield AFMS0 = Adafruit_MotorShield(0x61);
 // Connect stepper motors with 400 steps per revolution (1.8 degree)
 // Create the motor shield object with the default I2C address
-
-
+Adafruit_StepperMotor *m[4];
 
 Axis a[2];  // for line()
 Axis atemp;  // for line()

@@ -1,69 +1,71 @@
 //------------------------------------------------------------------------------
 // 2 Axis CNC Demo
-// dan@marginallycelver.com 2013-08-30
+// dan@marginallycelver.com 2015-12-23
 //------------------------------------------------------------------------------
 // Copyright at end of file.
 // please see http://www.github.com/MarginallyClever/GcodeCNCDemo for more information.
 
-#include "config.h"
-
-#if CONTROLLER == AMS2
+#if CONTROLLER == RAMPS
 
 //------------------------------------------------------------------------------
 // INCLUDES
 //------------------------------------------------------------------------------
 
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_PWMServoDriver.h"
 
+//------------------------------------------------------------------------------
+// CONSTANTS
+//------------------------------------------------------------------------------
+#define M1_STEP 54
+#define M1_DIR  55
+#define M1_ENA  38
 
-//#if CONTROLLER = AMS2
+#define M2_STEP 60
+#define M2_DIR  61
+#define M2_ENA  56
 
-// Make sure you set the right address.  If you aren't sure,
-// use http://playground.arduino.cc/Main/I2cScanner to find it.
-#define AFMS2_ADDRESS  (0x60)
-
-#ifndef AFMS2_ADDRESS
-#error AFMS2_ADDRESS must be defined!
-#endif
-#endif
+// limit switches
+#define SWITCH1 3
+#define SWITCH2 14
 
 //------------------------------------------------------------------------------
 // GLOBALS
 //------------------------------------------------------------------------------
-
-// Create the motor shield object with the default I2C address
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(AMS2_ADDRESS); 
-Adafruit_StepperMotor *m1 = AFMS.getStepper(STEPS_PER_TURN, 1);  // to motor port #1 (M1 and M2)
-Adafruit_StepperMotor *m2 = AFMS.getStepper(STEPS_PER_TURN, 2);  // to motor port #2 (M3 and M4)
-
-
+  
 //------------------------------------------------------------------------------
 // METHODS
 //------------------------------------------------------------------------------
 
 void m1step(int dir) {
-  m1->onestep(dir>0?FORWARD:BACKWARD,SINGLE);
+  digitalWrite(M1_ENA,HIGH);
+  digitalWrite(M1_DIR,dir);
+  digitalWrite(M1_STEP,HIGH);
+  digitalWrite(M1_STEP,LOW);
 }
 
 void m2step(int dir) {
-  m2->onestep(dir>0?FORWARD:BACKWARD,SINGLE);
+  digitalWrite(M2_ENA,HIGH);
+  digitalWrite(M2_DIR,dir);
+  digitalWrite(M2_STEP,HIGH);
+  digitalWrite(M2_STEP,LOW);
 }
 
 void disable() {
-  m1->release();
-  m2->release();
+  digitalWrite(M1_ENA,LOW);
+  digitalWrite(M2_ENA,LOW);
 }
 
 
 void setup_controller() {
-  AFMS.begin();  // create with the default frequency 1.6KHz
+  pinMode(M1_ENA,OUTPUT);
+  pinMode(M2_ENA,OUTPUT);
+  pinMode(M1_STEP,OUTPUT);
+  pinMode(M2_STEP,OUTPUT);
+  pinMode(M1_DIR,OUTPUT);
+  pinMode(M2_DIR,OUTPUT);
 }
 
 
-//#endif  CONTROLLER == AMS2
-
+#endif  // CONTROLLER == RAMPS
 /**
 * This file is part of GcodeCNCDemo.
 *
@@ -80,3 +82,4 @@ void setup_controller() {
 * You should have received a copy of the GNU General Public License
 * along with Foobar. If not, see <http://www.gnu.org/licenses/>.
 */
+

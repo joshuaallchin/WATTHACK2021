@@ -1,42 +1,29 @@
 //------------------------------------------------------------------------------
 // 2 Axis CNC Demo
 // dan@marginallycelver.com 2013-08-30
+// modified by lsahidin@yahoo.com added HG7881 stepper controller
 //------------------------------------------------------------------------------
 // Copyright at end of file.
 // please see http://www.github.com/MarginallyClever/GcodeCNCDemo for more information.
 
-#include "config.h"
+// Warning.
+// * to reduce and avoid overheat on HG7881, use M18 after every G00, G01, G02, G03 on Gcode * \\
 
-#if CONTROLLER == AMS2
+#if CONTROLLER == HG7881
 
 //------------------------------------------------------------------------------
 // INCLUDES
 //------------------------------------------------------------------------------
+#include <HG7881Step.h>
 
-#include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_PWMServoDriver.h"
-
-
-//#if CONTROLLER = AMS2
-
-// Make sure you set the right address.  If you aren't sure,
-// use http://playground.arduino.cc/Main/I2cScanner to find it.
-#define AFMS2_ADDRESS  (0x60)
-
-#ifndef AFMS2_ADDRESS
-#error AFMS2_ADDRESS must be defined!
-#endif
-#endif
 
 //------------------------------------------------------------------------------
 // GLOBALS
 //------------------------------------------------------------------------------
-
-// Create the motor shield object with the default I2C address
-Adafruit_MotorShield AFMS = Adafruit_MotorShield(AMS2_ADDRESS); 
-Adafruit_StepperMotor *m1 = AFMS.getStepper(STEPS_PER_TURN, 1);  // to motor port #1 (M1 and M2)
-Adafruit_StepperMotor *m2 = AFMS.getStepper(STEPS_PER_TURN, 2);  // to motor port #2 (M3 and M4)
+// Initialize HG7881 stepper controller
+// HG7881Step motor(Step, pinA_IA, pinA_IB, pinB_IA, pin_B_IB);
+HG7881Step m1((int)STEPS_PER_TURN, 9, 5, 10, 6);
+HG7881Step m2((int)STEPS_PER_TURN, 0, 6, 5, 7);
 
 
 //------------------------------------------------------------------------------
@@ -44,26 +31,23 @@ Adafruit_StepperMotor *m2 = AFMS.getStepper(STEPS_PER_TURN, 2);  // to motor por
 //------------------------------------------------------------------------------
 
 void m1step(int dir) {
-  m1->onestep(dir>0?FORWARD:BACKWARD,SINGLE);
+    m1.onestep(dir);
 }
 
 void m2step(int dir) {
-  m2->onestep(dir>0?FORWARD:BACKWARD,SINGLE);
+    m2.onestep(dir);
 }
 
 void disable() {
-  m1->release();
-  m2->release();
+    m1.release();
+    m2.release();
 }
 
 
-void setup_controller() {
-  AFMS.begin();  // create with the default frequency 1.6KHz
-}
+void setup_controller() {}
 
 
-//#endif  CONTROLLER == AMS2
-
+#endif  // CONTROLLER == HG7881
 /**
 * This file is part of GcodeCNCDemo.
 *
@@ -80,3 +64,4 @@ void setup_controller() {
 * You should have received a copy of the GNU General Public License
 * along with Foobar. If not, see <http://www.gnu.org/licenses/>.
 */
+

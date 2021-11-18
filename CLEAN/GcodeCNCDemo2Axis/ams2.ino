@@ -22,9 +22,9 @@
 
 // Make sure you set the right address.  If you aren't sure,
 // use http://playground.arduino.cc/Main/I2cScanner to find it.
-#define AFMS2_ADDRESS  (0x60)
+#define AMS2_ADDRESS  (0x60)
 
-#ifndef AFMS2_ADDRESS
+#ifndef AMS2_ADDRESS
 #error AFMS2_ADDRESS must be defined!
 #endif
 #endif
@@ -62,7 +62,7 @@ void setup_controller() {
 }
 
 
-//#endif  CONTROLLER == AMS2
+//#endif  // CONTROLLER == AMS2
 
 /**
 * This file is part of GcodeCNCDemo.
